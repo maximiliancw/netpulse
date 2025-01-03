@@ -41,7 +41,7 @@ export function Layout({ children }: LayoutProps) {
 
       {/* Main content */}
       <main className="ml-64 min-h-screen">
-        <div className="p-8 w-full">
+        <div className="max-w-[calc(100vw-16rem)] p-8">
           {children}
         </div>
       </main>

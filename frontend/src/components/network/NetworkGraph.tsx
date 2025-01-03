@@ -26,6 +26,50 @@ interface NetworkStats {
     lastUpdate: string | null
 }
 
+interface GraphSettings {
+    particleCount: number
+    particleSpeed: number
+    nodeSize: number
+    linkWidth: number
+    cooldownTicks: number
+    maxZoom: number
+}
+
+interface ColorSettings {
+    activeNode: string
+    inactiveNode: string
+    links: string
+}
+
+interface Settings {
+    graphSettings: GraphSettings
+    colors: ColorSettings
+}
+
+// Add getSettings helper
+const getSettings = (): Settings => {
+    const savedSettings = localStorage.getItem('netpulse-settings');
+    if (savedSettings) {
+        return JSON.parse(savedSettings);
+    }
+    return {
+        graphSettings: {
+            particleCount: 2,
+            particleSpeed: 0.005,
+            nodeSize: 6,
+            linkWidth: 1,
+            cooldownTicks: 50,
+            maxZoom: 10,
+        },
+        colors: {
+            activeNode: '#3B82F6',
+            inactiveNode: '#10B981',
+            links: '#94A3B8',
+        },
+    };
+};
+
+
 export function NetworkGraph() {
     const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] })
     const [selectedNode, setSelectedNode] = useState<Node | null>(null)
@@ -36,9 +80,21 @@ export function NetworkGraph() {
         lastUpdate: null
     })
     const [status, setStatus] = useState<'connected' | 'connecting' | 'disconnected'>('connecting')
+    const [settings, setSettings] = useState<Settings>(getSettings());
     const wsRef = useRef<WebSocket | null>(null)
     const graphRef = useRef<any>(null)
     const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === 'netpulse-settings') {
+                setSettings(e.newValue ? JSON.parse(e.newValue) : getSettings());
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     useEffect(() => {
         const connectWebSocket = () => {
@@ -234,23 +290,23 @@ export function NetworkGraph() {
                     graphData={graphData}
                     nodeLabel={node => `Host: ${node.id}`}
                     nodeColor={node =>
-                        selectedNode?.id === node.id ? '#3B82F6' : '#10B981'
+                        selectedNode?.id === node.id ? settings.colors.activeNode : settings.colors.inactiveNode
                     }
-                    linkWidth={link => Math.sqrt(link.value || 1)}
-                    linkColor={() => '#94A3B8'}
+                    linkWidth={link => Math.sqrt((link.value || 1) * settings.graphSettings.linkWidth)}
+                    linkColor={() => settings.colors.links}
                     onNodeClick={(node: any) => setSelectedNode(node)}
-                    nodeRelSize={6}
-                    linkDirectionalParticles={2}
-                    linkDirectionalParticleSpeed={0.005}
-                    cooldownTicks={50}
+                    nodeRelSize={settings.graphSettings.nodeSize}
+                    linkDirectionalParticles={settings.graphSettings.particleCount}
+                    linkDirectionalParticleSpeed={settings.graphSettings.particleSpeed}
+                    cooldownTicks={settings.graphSettings.cooldownTicks}
                     onEngineStop={handleEngineStop}
-                    width={containerRef.current?.clientWidth || window.innerWidth - 300} // Fallback width
+                    width={containerRef.current?.clientWidth || Math.min(window.innerWidth - 300, window.innerWidth - 16 * 4)}
                     height={600}
                     backgroundColor="#ffffff"
                     d3AlphaDecay={0.02}
                     d3VelocityDecay={0.3}
                     minZoom={1}
-                    maxZoom={10}
+                    maxZoom={settings.graphSettings.maxZoom}
                 />
             </div>
             {/* Selected Node Details */}
