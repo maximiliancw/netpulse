@@ -238,12 +238,12 @@ export function NetworkGraph() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 w-full">
             {/* Stats Cards */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="rounded-lg border border-gray-200 bg-white p-4">
                     <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-medium text-gray-500">Active Hosts</h3>
+                        <h3 className="text-sm font-medium text-gray-500">Hosts</h3>
                         <Network className="h-5 w-5 text-blue-500" />
                     </div>
                     <p className="mt-2 text-2xl font-semibold text-blue-500">{stats.hosts}</p>
@@ -283,7 +283,7 @@ export function NetworkGraph() {
             {/* Network Graph */}
             <div
                 ref={containerRef}
-                className="relative h-[600px] w-full rounded-lg border border-gray-200 bg-white overflow-hidden"
+                className="relative h-[600px] w-full rounded-lg border border-gray-200 bg-white"
             >
                 <ForceGraph2D
                     ref={graphRef}
@@ -300,7 +300,7 @@ export function NetworkGraph() {
                     linkDirectionalParticleSpeed={settings.graphSettings.particleSpeed}
                     cooldownTicks={settings.graphSettings.cooldownTicks}
                     onEngineStop={handleEngineStop}
-                    width={containerRef.current?.clientWidth || Math.min(window.innerWidth - 300, window.innerWidth - 16 * 4)}
+                    width={containerRef.current?.clientWidth || window.innerWidth - 48} // 48px for left/right padding
                     height={600}
                     backgroundColor="#ffffff"
                     d3AlphaDecay={0.02}
