@@ -2,6 +2,8 @@
 
 NetPulse is a real-time network traffic analysis and visualization web application. It provides insights into network activity by capturing and analyzing network packets, displaying the data in an interactive graph format.
 
+<img src="https://raw.githubusercontent.com/maximiliancw/netpulse/refs/heads/main/image.png" alt="Screenshot of NetPulse UI">
+
 ## Features
 
 - Real-time network traffic monitoring
@@ -44,3 +46,4 @@ NetPulse is a real-time network traffic analysis and visualization web applicati
 ```sh
 git clone https://github.com/maximiliancw/netpulse.git
 cd netpulse
+```
